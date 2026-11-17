@@ -36,7 +36,38 @@ Swap one component for its "perfect" version at a time to see where errors come 
 Metrics: field-level precision/recall/F1 over every extracted value, per-field recall, document exact match,
 **compliance-verdict accuracy** (does pass/fail match?), and **character error rate** inside data regions.
 
-## What real OCR broke, and the fixes
+## Results
+Colab T4, 600 generated certificates (420 train / 90 val / 90 test), YOLOv8n trained for 40 epochs (~10 s/epoch).
+Everything below is on the 90 held-out test pages.
+
+**Layout detection (YOLOv8n):** mAP50 = 0.995, mAP50-95 = 0.978. Per class AP50-95 ranges from 0.953 (remarks)
+to 0.995 (stamp).
+
+**End-to-end extraction** (full table in [`results/RESULTS.md`](results/RESULTS.md)):
+
+| Setting | Field F1 | Chem. values | Mech. values | Compliance acc. | CER |
+|---|---|---|---|---|---|
+| Perfect text + perfect layout (parser only) | 1.000 | 1.000 | 1.000 | 1.000 | - |
+| Perfect text + keyword layout | 1.000 | 1.000 | 1.000 | 1.000 | - |
+| EasyOCR + keyword layout | 0.732 | 0.542 | 0.626 | 0.333 | 5.1% |
+| **EasyOCR + YOLOv8 layout** | 0.732 | 0.542 | 0.629 | 0.333 | 5.1% |
+| Tesseract + YOLOv8 layout | 0.749 | 0.363 | 0.556 | 0.200 | 8.7% |
+
+What the numbers say:
+* **OCR is the bottleneck, not layout.** With perfect text the parser is exact, and swapping keyword rules for
+  YOLO (or even for the true boxes) changes nothing measurable. On these synthetic pages the regions are easy
+  to find; reading the small table cells correctly is the hard part.
+* **No non-conforming certificate was ever passed.** Across every configuration the confusion matrix has zero
+  `fail -> pass`. Uncertain documents go to `review` or `unknown_spec` instead (EasyOCR: 42 of 90), which is the
+  failure mode you want for a QA gate. The remaining real error is 14 conforming certificates flagged `fail`
+  because a misread value fell outside the limits.
+* **EasyOCR vs Tesseract:** Tesseract is more precise (0.90 vs 0.78) but misses far more table values
+  (chemistry recall 0.36 vs 0.54), so more documents end up in review.
+* **Most-missed fields** (EasyOCR + YOLO): `C`, `S` and `P` chemistry columns, then elongation and heat number.
+  One-letter headers are still the weakest point, and heat numbers with O/0, S/5 and Z/2 confusions break the
+  join between the chemistry and mechanical tables.
+
+## What real OCR broke during development, and the fixes
 The first real-OCR run (EasyOCR on CPU, keyword layout, 15 test pages) had only **5.4% character error**, but
 field F1 was just **0.50** and compliance accuracy **0.00**. The text was mostly right; the structure built on it
 was wrong. Error analysis found these failure modes, and fixing them took the same 15 pages to
