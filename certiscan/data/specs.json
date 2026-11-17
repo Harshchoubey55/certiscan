@@ -1,0 +1,70 @@
+{
+  "_note": "Illustrative limits for a few common ASTM grades, compiled from publicly available summaries. ASTM/ASME standards are copyrighted and revised regularly; verify against the current edition before relying on these for anything real. Units: chemistry in wt%, strength in MPa, elongation in %.",
+  "A106-B": {
+    "name": "ASTM A106 Grade B - seamless carbon steel pipe for high-temperature service",
+    "chemistry": {
+      "C":  {"max": 0.30, "required": true},
+      "Mn": {"min": 0.29, "max": 1.06, "required": true},
+      "P":  {"max": 0.035, "required": true},
+      "S":  {"max": 0.035, "required": true},
+      "Si": {"min": 0.10, "required": true},
+      "Cr": {"max": 0.40},
+      "Cu": {"max": 0.40},
+      "Mo": {"max": 0.15},
+      "Ni": {"max": 0.40},
+      "V":  {"max": 0.08}
+    },
+    "mechanical": {
+      "tensile_mpa": {"min": 415, "required": true},
+      "yield_mpa":   {"min": 240, "required": true}
+    }
+  },
+  "A53-B": {
+    "name": "ASTM A53 Grade B - welded and seamless steel pipe",
+    "chemistry": {
+      "C":  {"max": 0.30, "required": true},
+      "Mn": {"max": 1.20, "required": true},
+      "P":  {"max": 0.05, "required": true},
+      "S":  {"max": 0.045, "required": true},
+      "Cu": {"max": 0.40},
+      "Ni": {"max": 0.40},
+      "Cr": {"max": 0.40},
+      "Mo": {"max": 0.15},
+      "V":  {"max": 0.08}
+    },
+    "mechanical": {
+      "tensile_mpa": {"min": 415, "required": true},
+      "yield_mpa":   {"min": 240, "required": true}
+    }
+  },
+  "A36": {
+    "name": "ASTM A36 - carbon structural steel (plates up to 20 mm)",
+    "chemistry": {
+      "C":  {"max": 0.25, "required": true},
+      "P":  {"max": 0.04, "required": true},
+      "S":  {"max": 0.05, "required": true},
+      "Si": {"max": 0.40},
+      "Cu": {"min": 0.20}
+    },
+    "mechanical": {
+      "tensile_mpa":    {"min": 400, "max": 550, "required": true},
+      "yield_mpa":      {"min": 250, "required": true},
+      "elongation_pct": {"min": 20}
+    }
+  },
+  "A516-70": {
+    "name": "ASTM A516 Grade 70 - pressure vessel plate (up to 12.5 mm)",
+    "chemistry": {
+      "C":  {"max": 0.27, "required": true},
+      "Mn": {"min": 0.85, "max": 1.20, "required": true},
+      "P":  {"max": 0.025, "required": true},
+      "S":  {"max": 0.025, "required": true},
+      "Si": {"min": 0.15, "max": 0.40, "required": true}
+    },
+    "mechanical": {
+      "tensile_mpa":    {"min": 485, "max": 620, "required": true},
+      "yield_mpa":      {"min": 260, "required": true},
+      "elongation_pct": {"min": 21}
+    }
+  }
+}
