@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Upload a certificate</h2>
+  <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+    <input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff,.bmp" required>
+    <button type="submit">Extract</button>
+    <span class="muted">PDF (first page) or image. Duplicate files are detected by SHA-256.</span>
+  </form>
+</div>
+<div class="card scroll">
+  <h2>Processed certificates</h2>
+  {% if certs %}
+  <table>
+    <tr><th>#</th><th>File</th><th>Spec</th><th>Heats</th><th>Compliance</th><th>Status</th><th>Processed</th></tr>
+    {% for c in certs %}{% set d = c.document %}
+    <tr>
+      <td><a href="{{ url_for('review', cert_id=c.id) }}">{{ c.id }}</a></td>
+      <td>{{ c.filename }}</td>
+      <td>{{ d.spec_key or '—' }}</td>
+      <td>{{ d.heats | map(attribute='heat_no') | join(', ') }}</td>
+      <td><span class="badge {{ c.compliance }}">{{ c.compliance }}</span></td>
+      <td>{{ c.status }}</td>
+      <td class="muted">{{ c.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="muted">Nothing yet. Upload a certificate above.</p>{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Certificate #{{ cert.id }} · CertiScan{% endblock %}
+{% block content %}
+{% set comp = doc.compliance %}
+<div class="card" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+  <div>
+    <h1 style="font-size:20px">#{{ cert.id }} · {{ cert.filename }}</h1>
+    <span class="badge {{ comp.status }}">{{ comp.status }}</span>
+    <span class="muted">&nbsp;spec: {{ comp.spec_key or 'not recognised' }} · {{ cert.status }}
+      · OCR {{ timings.ocr_s }}s · layout {{ timings.layout_s }}s</span>
+  </div>
+  <div style="display:flex;gap:8px">
+    <a class="btn secondary" href="{{ url_for('api_get', cert_id=cert.id) }}">JSON</a>
+    <a class="btn secondary" href="{{ url_for('api_csv', cert_id=cert.id) }}">CSV for ERP</a>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card"><h2>Detected layout</h2><img class="doc" src="{{ url_for('overlay', cert_id=cert.id) }}" alt="Certificate with detected regions"></div>
+
+  <form class="card" method="post">
+    {% if comp.violations or comp.missing %}
+    <h2>Findings</h2>
+    <table style="margin-bottom:18px">
+      <tr><th>Heat</th><th>Field</th><th>Value</th><th>Limit</th></tr>
+      {% for v in comp.violations %}
+      <tr><td>{{ v.heat_no }}</td><td>{{ v.field }}</td><td><b style="color:var(--fail)">{{ v.value }}</b></td>
+          <td>{% if v.min is not none %}≥ {{ v.min }}{% endif %} {% if v.max is not none %}≤ {{ v.max }}{% endif %}</td></tr>
+      {% endfor %}
+      {% for m in comp.missing %}
+      <tr><td>{{ m.heat_no or '—' }}</td><td>{{ m.field }}</td><td colspan="2" style="color:var(--review)">required value not found</td></tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+
+    <h2>Header fields</h2>
+    <table style="margin-bottom:18px">
+      {% for f in info_fields %}
+      <tr><th style="width:150px">{{ f.replace('_', ' ') }}</th><td><input type="text" name="{{ f }}" value="{{ doc[f] or '' }}"></td></tr>
+      {% endfor %}
+      <tr><th>spec key</th><td>
+        <select name="spec_key">{% for s in specs %}<option {% if s == doc.spec_key %}selected{% endif %}>{{ s }}</option>{% endfor %}
+          {% if doc.spec_key not in specs %}<option selected value="{{ doc.spec_key or '' }}">{{ doc.spec_key or '—' }}</option>{% endif %}</select>
+      </td></tr>
+    </table>
+
+    <h2>Chemistry (wt%)</h2>
+    <div class="scroll" style="margin-bottom:18px"><table>
+      <tr><th>Heat</th>{% for e in elements %}<th>{{ e }}</th>{% endfor %}</tr>
+      {% for h in doc.heats %}{% set i = loop.index0 %}
+      <tr><td><input type="text" name="heat__{{ i }}" value="{{ h.heat_no }}" style="width:110px"></td>
+        {% for e in elements %}
+        <td class="{{ 'flag' if (h.heat_no, e) in flagged }}"><input class="num" type="text" name="chem__{{ i }}__{{ e }}" value="{{ h.chemistry.get(e, '') }}"></td>
+        {% endfor %}</tr>
+      {% endfor %}
+    </table></div>
+
+    <h2>Mechanical</h2>
+    <div class="scroll" style="margin-bottom:18px"><table>
+      <tr><th>Heat</th><th>Yield (MPa)</th><th>Tensile (MPa)</th><th>Elongation (%)</th></tr>
+      {% for h in doc.heats %}{% set i = loop.index0 %}
+      <tr><td>{{ h.heat_no }}</td>
+        {% for m in mech_fields %}
+        <td class="{{ 'flag' if (h.heat_no, m) in flagged }}"><input class="num" type="text" name="mech__{{ i }}__{{ m }}" value="{{ h.mechanical.get(m, '') }}"></td>
+        {% endfor %}</tr>
+      {% endfor %}
+    </table></div>
+    <button type="submit">Approve &amp; re-validate</button>
+  </form>
+</div>
+{% endblock %}

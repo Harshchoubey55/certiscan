@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CertiScan{% endblock %}</title>
+  <style>
+    :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2330; --muted:#667085; --line:#e4e7ec; --accent:#2457d6;
+            --pass:#0f7b3f; --pass-bg:#e7f6ee; --fail:#b42318; --fail-bg:#fdecea; --review:#8a5a00; --review-bg:#fff4dc; }
+    * { box-sizing:border-box; }
+    body { margin:0; font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+    header { background:var(--ink); color:#fff; padding:14px 24px; display:flex; gap:16px; align-items:baseline; }
+    header a { color:#fff; text-decoration:none; font-weight:700; font-size:18px; }
+    header span { color:#aab2c5; font-size:13px; }
+    main { max-width:1280px; margin:24px auto; padding:0 16px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:20px; margin-bottom:20px; }
+    h1,h2,h3 { margin:0 0 12px; }
+    h2 { font-size:17px; }
+    table { width:100%; border-collapse:collapse; }
+    th,td { text-align:left; padding:7px 9px; border-bottom:1px solid var(--line); font-size:14px; }
+    th { color:var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.03em; }
+    input[type=text] { width:100%; padding:5px 7px; border:1px solid var(--line); border-radius:6px; font:inherit; font-size:14px; }
+    input.num { width:84px; text-align:right; font-variant-numeric:tabular-nums; }
+    .flag input { border-color:var(--fail); background:var(--fail-bg); }
+    button, .btn { background:var(--accent); color:#fff; border:0; border-radius:7px; padding:8px 16px; font:inherit; font-weight:600; cursor:pointer; text-decoration:none; display:inline-block; }
+    .btn.secondary { background:#fff; color:var(--accent); border:1px solid var(--accent); }
+    .badge { display:inline-block; padding:2px 10px; border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase; }
+    .pass { color:var(--pass); background:var(--pass-bg); } .fail { color:var(--fail); background:var(--fail-bg); }
+    .review, .unknown_spec { color:var(--review); background:var(--review-bg); }
+    .flash { padding:10px 14px; border-radius:8px; margin-bottom:14px; }
+    .flash.ok { background:var(--pass-bg); } .flash.error { background:var(--fail-bg); } .flash.warn { background:var(--review-bg); }
+    .grid { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1.1fr); gap:20px; align-items:start; }
+    .muted { color:var(--muted); font-size:13px; }
+    img.doc { width:100%; border:1px solid var(--line); border-radius:6px; }
+    .scroll { overflow-x:auto; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<header><a href="{{ url_for('index') }}">CertiScan</a><span>Material Test Report extraction &amp; compliance</span></header>
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>
